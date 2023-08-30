@@ -55,8 +55,49 @@ Normalize your variables, which variables are correlated, are any of your variab
 
 ```
 
-## Visualization or Analysis
+## Analysis (Yuta)
 
 ```{r}
+library(tidyverse)
+tt=as.data.frame(Titanic)
+summary(tt)
+boxplot(tt)
+# eliminate two outliers (Crew/Male/Adult/Not survived=670, 3rd/Male/Adult/No=387)
+tt_rm <- subset(tt, Freq <= 300)
+
+# create dummy variable
+tt_rm$death <- ifelse(tt_rm$Survived == "No", 1, 0)
+
+# calculating mortality for each variable
+ByClass <- tt_rm %>%
+  group_by(Class, death) %>%
+  summarise(total = sum(Freq))
+ByClass 
+Mor_Class <- tibble(class = c("1st", "2nd", "3rd"), Mortality = c(122/(203+122), 167/(118+167), 141/(178+141)))
+
+
+BySex <- tt_rm %>%
+  group_by(Sex, death) %>%
+  summarise(total = sum(Freq))
+BySex
+Mor_Sex <- tibble(sex = c("Male", "Female"), Mortality = c(307/(367+307), 126/(344+126)))
+
+ByAge <- tt_rm %>%
+  group_by(Age, death) %>%
+  summarise(total = sum(Freq))
+ByAge
+Mor_Age <- tibble(age =c("Child", "Adult"), Mortality = c(52/(57+52), 654/(654+381)))
+
+print(Mor_Class) # 1st = 0.375, 2nd = 0.586, 3rd = 0.442
+print(Mor_Sex) # Male = 0.455, Female = 0.268
+print(Mor_Age) # child = 0.477, adult = 0.632
+```
+
+This simple aggregate results showed that males had a higher mortality rate than females, and adults had a higher mortality rate than children by age.
+By class, the 1st class had a lower mortality rate than the other classes.
+
+These results may be influenced by the order of priority evacuation to the boats on the Titanic and the location of the rooms by class (1st class was the top room).
 
 ```
+
+
